@@ -1,0 +1,7 @@
+AI-CIVIC-COMPLAINT-PLATFORM/
+node_modules/
+dist/
+.vscode/
+.env
+__pycache__/
+*.pyc
