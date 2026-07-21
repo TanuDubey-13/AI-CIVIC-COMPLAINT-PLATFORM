@@ -2,24 +2,15 @@ const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      // Mongoose 6+ no longer needs useNewUrlParser/useUnifiedTopology,
-      // but they're harmless to include for older driver compatibility.
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      autoIndex: true,
     });
 
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-
-    mongoose.connection.on("error", (err) => {
-      console.error(`MongoDB connection error: ${err.message}`);
-    });
-
-    mongoose.connection.on("disconnected", () => {
-      console.warn("MongoDB disconnected. Attempting to reconnect...");
-    });
+    console.log(`MongoDB connected successfully: ${conn.connection.host}`);
+    return conn;
   } catch (error) {
-    console.error(`Error connecting to MongoDB: ${error.message}`);
-    // Exit process with failure — the app cannot run without a DB connection
-    process.exit(1);
+    console.error("MongoDB connection failed:", error.message);
+    throw error;
   }
 };
 
