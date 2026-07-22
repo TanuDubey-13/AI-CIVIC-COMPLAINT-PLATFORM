@@ -22,6 +22,8 @@ const startServer = async () => {
   try {
     process.env.MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
+    console.log("Mongo URI:", process.env.MONGODB_URI);
+
     await connectDB();
 
     server = app.listen(PORT, () => {

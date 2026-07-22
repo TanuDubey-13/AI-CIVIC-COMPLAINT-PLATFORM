@@ -10,7 +10,7 @@ const cookieParser = require("cookie-parser");
 // const notificationRoutes = require("./routes/notificationRoutes");
 // const dashboardRoutes = require("./routes/dashboardRoutes");
 // const aiRoutes = require("./routes/aiRoutes");
-const errorHandler = require("./middleware/errorHandler");
+const { errorHandler, notFound } = require("./middleware/errorHandler");
 
 const app = express();
 
@@ -38,12 +38,7 @@ app.get("/", (req, res) => {
 // app.use("/api/dashboard", dashboardRoutes);
 // app.use("/api/ai", aiRoutes);
 
-app.use((req, res, next) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.originalUrl} not found`,
-  });
-});
+app.use(notFound);
 
 app.use(errorHandler);
 
