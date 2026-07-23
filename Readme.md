@@ -4,7 +4,7 @@ This workspace now includes a starter structure for:
 - Frontend React application under client/
 - Backend Node.js server under server/
 - AI service under ai-service/
-- Database schema and sample data under database/
+- Database schema and sample data under database
   
 
 ## Getting started
