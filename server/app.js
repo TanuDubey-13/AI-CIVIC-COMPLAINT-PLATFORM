@@ -1,35 +1,45 @@
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
+const compression = require("compression");
+const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 
-const authRoutes = require("./routes/authRoutes");
-const complaintRoutes = require("./routes/complaintRoutes");
-const errorHandler = require("./middleware/errorHandler");
+// const authRoutes = require("./routes/authRoutes");
+// const complaintRoutes = require("./routes/complaintRoutes");
+// const notificationRoutes = require("./routes/notificationRoutes");
+// const dashboardRoutes = require("./routes/dashboardRoutes");
+// const aiRoutes = require("./routes/aiRoutes");
+const { errorHandler, notFound } = require("./middleware/errorHandler");
 
 const app = express();
 
-// Core middleware
 app.use(cors());
+app.use(helmet());
+app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// Health check
-app.get("/api/health", (req, res) => {
-  res.status(200).json({ success: true, message: "API is running" });
-});
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/complaints", complaintRoutes);
-
-// 404 handler for unknown routes
-app.use((req, res, next) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.originalUrl} not found`,
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "AI Civic Complaint Platform API Running",
   });
 });
 
-// Centralized error handler (must be last)
+// app.use("/api/auth", authRoutes);
+// app.use("/api/complaints", complaintRoutes);
+// app.use("/api/notifications", notificationRoutes);
+// app.use("/api/dashboard", dashboardRoutes);
+// app.use("/api/ai", aiRoutes);
+
+app.use(notFound);
+
 app.use(errorHandler);
 
 module.exports = app;
