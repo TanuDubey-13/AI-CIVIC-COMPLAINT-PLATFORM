@@ -9,7 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
 // const notificationRoutes = require("./routes/notificationRoutes");
 // const dashboardRoutes = require("./routes/dashboardRoutes");
-// const aiRoutes = require("./routes/aiRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 const { errorHandler, notFound } = require("./middleware/errorHandler");
 
 const app = express();
@@ -36,7 +36,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/complaints", complaintRoutes);
 // app.use("/api/notifications", notificationRoutes);
 // app.use("/api/dashboard", dashboardRoutes);
-// app.use("/api/ai", aiRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.use(notFound);
 
