@@ -6,69 +6,102 @@ const complaintSchema = new mongoose.Schema(
       type: String,
       required: [true, "Title is required"],
       trim: true,
+      minlength: [5, "Title must be at least 5 characters"],
       maxlength: [100, "Title cannot exceed 100 characters"],
     },
     description: {
       type: String,
       required: [true, "Description is required"],
       trim: true,
-      maxlength: [1000, "Description cannot exceed 1000 characters"],
+      minlength: [20, "Description must be at least 20 characters"],
     },
     image: {
       type: String,
-      required: [true, "Complaint image is required"],
+      default: "",
+    },
+    location: {
+      address: {
+        type: String,
+        default: "",
+      },
+      latitude: {
+        type: Number,
+        default: null,
+      },
+      longitude: {
+        type: Number,
+        default: null,
+      },
     },
     category: {
       type: String,
-      enum: ["road_damage", "streetlight", "garbage", "water_leakage", "other"],
-      required: [true, "Category is required"],
+      enum: [
+        "Road Damage",
+        "Garbage",
+        "Water Leakage",
+        "Street Light",
+        "Drainage",
+        "Electricity",
+        "Sewage",
+        "Other",
+      ],
+      default: "Other",
     },
-    severity: {
+    priority: {
       type: String,
-      enum: ["low", "medium", "high", "critical"],
-      default: "low",
-    },
-    location: {
-      type: String,
-      required: [true, "Location address is required"],
-      trim: true,
-    },
-    latitude: {
-      type: Number,
-      required: [true, "Latitude is required"],
-    },
-    longitude: {
-      type: Number,
-      required: [true, "Longitude is required"],
+      enum: ["Low", "Medium", "High", "Critical"],
+      default: "Medium",
     },
     status: {
       type: String,
-      enum: ["pending", "in_progress", "resolved", "rejected"],
-      default: "pending",
+      enum: ["Pending", "Assigned", "In Progress", "Resolved", "Rejected"],
+      default: "Pending",
     },
-    department: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Department",
-    },
-    createdBy: {
+    citizen: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: [true, "Citizen is required"],
     },
     assignedOfficer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
     },
+    department: {
+      type: String,
+      default: "",
+    },
+    aiPrediction: {
+      category: {
+        type: String,
+        default: "",
+      },
+      confidence: {
+        type: Number,
+        default: null,
+      },
+      severity: {
+        type: Number,
+        default: null,
+      },
+    },
+    remarks: {
+      type: String,
+      default: "",
+    },
+    resolvedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
-    timestamps: true, // adds createdAt and updatedAt automatically
+    timestamps: true,
   }
 );
 
-// Helpful indexes for common queries
-complaintSchema.index({ createdBy: 1 });
 complaintSchema.index({ status: 1 });
 complaintSchema.index({ category: 1 });
+complaintSchema.index({ priority: 1 });
+complaintSchema.index({ citizen: 1 });
 
 module.exports = mongoose.model("Complaint", complaintSchema);

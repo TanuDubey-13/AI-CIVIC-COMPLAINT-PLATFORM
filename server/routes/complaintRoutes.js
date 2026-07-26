@@ -6,30 +6,20 @@ const {
   getMyComplaints,
   getAllComplaints,
   getComplaintById,
-  updateComplaintStatus,
+  updateComplaint,
+  deleteComplaint,
+  getComplaintStatistics,
 } = require("../controllers/complaintController");
 
 const { protect, authorize } = require("../middleware/auth");
 const { uploadComplaintImage } = require("../middleware/upload");
 
-// @route   POST /api/complaints
-// @desc    Citizen submits a new complaint with image
-router.post("/", protect, uploadComplaintImage, createComplaint);
-
-// @route   GET /api/complaints/my
-// @desc    Citizen views their own complaint history
-router.get("/my", protect, getMyComplaints);
-
-// @route   GET /api/complaints
-// @desc    Officer/Admin views complaints (filtered by role)
-router.get("/", protect, authorize("officer", "admin"), getAllComplaints);
-
-// @route   GET /api/complaints/:id
-// @desc    View a single complaint (owner or staff only)
+router.post("/create", protect, authorize("citizen"), uploadComplaintImage, createComplaint);
+router.get("/my", protect, authorize("citizen"), getMyComplaints);
+router.get("/stats", protect, authorize("admin"), getComplaintStatistics);
+router.get("/", protect, authorize("admin", "officer"), getAllComplaints);
 router.get("/:id", protect, getComplaintById);
-
-// @route   PATCH /api/complaints/:id/status
-// @desc    Officer/Admin updates complaint status
-router.patch("/:id/status", protect, authorize("officer", "admin"), updateComplaintStatus);
+router.put("/:id", protect, authorize("officer", "admin"), updateComplaint);
+router.delete("/:id", protect, authorize("admin"), deleteComplaint);
 
 module.exports = router;
