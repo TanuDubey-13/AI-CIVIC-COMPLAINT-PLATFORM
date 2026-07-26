@@ -247,7 +247,8 @@ const forgotPassword = async (req, res) => {
 // @access  Public
 const resetPassword = async (req, res) => {
   try {
-    const { token, newPassword, confirmPassword } = req.body;
+    const token = req.params.token;
+    const { newPassword, confirmPassword } = req.body;
 
     if (!token || !newPassword || !confirmPassword) {
       return res.status(400).json({
@@ -276,18 +277,19 @@ const resetPassword = async (req, res) => {
     }
 
     user.password = newPassword;
-    user.passwordResetToken = null;
-    user.passwordResetExpire = null;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpire = undefined;
+
     await user.save();
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "Password reset successful.",
     });
   } catch (error) {
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
-      message: "Server error while resetting password.",
+      message: error.message,
     });
   }
 };
@@ -296,7 +298,7 @@ const resetPassword = async (req, res) => {
 // @access  Public
 const verifyEmail = async (req, res) => {
   try {
-    const { verificationToken } = req.body;
+    const verificationToken = req.params.token;
 
     if (!verificationToken) {
       return res.status(400).json({
