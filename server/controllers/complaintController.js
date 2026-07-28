@@ -2,6 +2,14 @@ const streamifier = require("streamifier");
 const mongoose = require("mongoose");
 const cloudinary = require("../config/cloudinary");
 const Complaint = require("../models/Complaint");
+const {
+  notifyComplaintCreated,
+  notifyComplaintAssigned,
+  notifyComplaintUpdated,
+  notifyComplaintResolved,
+  notifyComplaintRejected,
+  notifyComplaintClosed,
+} = require("../services/notificationService");
 
 const VALID_CATEGORIES = [
   "Road Damage",
@@ -133,6 +141,7 @@ const createComplaint = async (req, res) => {
     });
 
     const populatedComplaint = await Complaint.findById(complaint._id).populate(getComplaintPopulate());
+    await notifyComplaintCreated(populatedComplaint);
 
     return res.status(201).json({
       success: true,
@@ -345,10 +354,30 @@ const updateComplaint = async (req, res) => {
       });
     }
 
+    const previousStatus = complaint.status;
+    const previousAssignedOfficer = complaint.assignedOfficer;
+
     const updatedComplaint = await Complaint.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
     }).populate(getComplaintPopulate());
+
+    if (updatedComplaint) {
+      if (updatedComplaint.status === "Resolved") {
+        await notifyComplaintResolved(updatedComplaint);
+      } else if (updatedComplaint.status === "Rejected") {
+        await notifyComplaintRejected(updatedComplaint);
+      } else if (updatedComplaint.status === "Closed") {
+        await notifyComplaintClosed(updatedComplaint);
+      } else if (
+        previousAssignedOfficer?.toString() !== updatedComplaint.assignedOfficer?.toString() ||
+        previousStatus !== updatedComplaint.status
+      ) {
+        await notifyComplaintAssigned(updatedComplaint);
+      } else {
+        await notifyComplaintUpdated(updatedComplaint);
+      }
+    }
 
     return res.status(200).json({
       success: true,
