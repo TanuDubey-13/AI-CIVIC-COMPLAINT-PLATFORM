@@ -89,6 +89,35 @@ const complaintSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    notes: [
+      {
+        officer: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        note: {
+          type: String,
+          trim: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+    visitedAt: {
+      type: Date,
+      default: null,
+    },
+    visitedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    proofImages: {
+      before: [{ type: String }],
+      after: [{ type: String }],
+    },
     resolvedAt: {
       type: Date,
       default: null,
