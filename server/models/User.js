@@ -39,6 +39,11 @@ const userSchema = new mongoose.Schema(
       enum: ["citizen", "officer", "admin"],
       default: "citizen",
     },
+    department: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     profileImage: {
       type: String,
       default: "",
@@ -75,7 +80,7 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-userSchema.index({ email: 1 });
+// userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 
 userSchema.pre("save", async function (next) {

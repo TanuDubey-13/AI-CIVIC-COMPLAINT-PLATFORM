@@ -22,6 +22,7 @@ const buildUserResponse = (user) => ({
   email: user.email,
   phone: user.phone,
   role: user.role,
+  department: user.department || "",
   isVerified: user.isVerified,
   isActive: user.isActive,
   createdAt: user.createdAt,
