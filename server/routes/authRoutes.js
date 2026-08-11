@@ -10,7 +10,7 @@ const {
   verifyEmail,
 } = require("../controllers/authController");
 
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/auth");
 
 // @route   POST /api/auth/register
 router.post("/register", registerUser);
