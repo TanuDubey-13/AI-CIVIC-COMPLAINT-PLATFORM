@@ -12,6 +12,7 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const officerRoutes = require("./routes/officerRoutes");
 const aiRoutes = require("./routes/aiRoutes");
+const firebaseRoutes = require("./routes/firebaseRoutes");
 const { errorHandler, notFound } = require("./middleware/errorHandler");
 
 const app = express();
@@ -40,6 +41,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/officer", officerRoutes);
+app.use("/api/firebase", firebaseRoutes);
 app.use("/api/ai", aiRoutes);
 
 app.use(notFound);

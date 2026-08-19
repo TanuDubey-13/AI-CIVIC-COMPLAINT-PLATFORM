@@ -2,6 +2,26 @@ const mongoose = require("mongoose");
 const Notification = require("../models/Notification");
 const User = require("../models/User");
 const { sendComplaintSubmittedEmail, sendComplaintAssignedEmail, sendComplaintResolvedEmail } = require("./emailService");
+const { sendPushNotification } = require("./firebaseNotificationService");
+
+const sendPushToRecipient = async (recipient, title, message, complaintId, type) => {
+  if (!recipient || !recipient.firebaseDeviceTokens?.length) {
+    return null;
+  }
+
+  return sendPushNotification(recipient.firebaseDeviceTokens, {
+    notification: {
+      title,
+      body: message,
+    },
+    data: {
+      complaintId: complaintId || "",
+      type: type || "General",
+      message,
+      title,
+    },
+  });
+};
 
 const normalizeUserId = (value) => {
   if (!value) return null;
@@ -115,8 +135,15 @@ const notifyComplaintCreated = async (complaint) => {
       });
 
       if (notification) {
-        const recipient = await User.findById(citizenId).select("name email");
+        const recipient = await User.findById(citizenId).select("name email firebaseDeviceTokens");
         await sendEmailForNotification(recipient, "Complaint Created", complaint);
+        await sendPushToRecipient(
+          recipient,
+          "Complaint Received",
+          `Your complaint "${complaint.title}" has been received and is under review.`,
+          complaintId,
+          "Complaint Created"
+        );
       }
     }
 
@@ -155,8 +182,15 @@ const notifyComplaintAssigned = async (complaint) => {
       });
 
       if (notification) {
-        const recipient = await User.findById(recipientId).select("name email");
+        const recipient = await User.findById(recipientId).select("name email firebaseDeviceTokens");
         await sendEmailForNotification(recipient, "Complaint Assigned", complaint);
+        await sendPushToRecipient(
+          recipient,
+          "Complaint Assigned",
+          `Complaint "${complaint.title}" has been assigned for follow-up.`,
+          complaintId,
+          "Complaint Assigned"
+        );
       }
     }
 
@@ -189,8 +223,15 @@ const notifyComplaintUpdated = async (complaint) => {
       });
 
       if (notification) {
-        const recipient = await User.findById(recipientId).select("name email");
+        const recipient = await User.findById(recipientId).select("name email firebaseDeviceTokens");
         await sendEmailForNotification(recipient, "Complaint Updated", complaint);
+        await sendPushToRecipient(
+          recipient,
+          "Complaint Updated",
+          `The status of complaint "${complaint.title}" has been updated.`,
+          complaintId,
+          "Complaint Updated"
+        );
       }
     }
 
@@ -223,8 +264,15 @@ const notifyComplaintResolved = async (complaint) => {
       });
 
       if (notification) {
-        const recipient = await User.findById(recipientId).select("name email");
+        const recipient = await User.findById(recipientId).select("name email firebaseDeviceTokens");
         await sendEmailForNotification(recipient, "Complaint Resolved", complaint);
+        await sendPushToRecipient(
+          recipient,
+          "Complaint Resolved",
+          `Complaint "${complaint.title}" has been resolved.`,
+          complaintId,
+          "Complaint Resolved"
+        );
       }
     }
 
@@ -257,8 +305,15 @@ const notifyComplaintRejected = async (complaint) => {
       });
 
       if (notification) {
-        const recipient = await User.findById(recipientId).select("name email");
+        const recipient = await User.findById(recipientId).select("name email firebaseDeviceTokens");
         await sendEmailForNotification(recipient, "Complaint Rejected", complaint);
+        await sendPushToRecipient(
+          recipient,
+          "Complaint Rejected",
+          `Complaint "${complaint.title}" has been rejected.`,
+          complaintId,
+          "Complaint Rejected"
+        );
       }
     }
 
@@ -291,8 +346,15 @@ const notifyComplaintClosed = async (complaint) => {
       });
 
       if (notification) {
-        const recipient = await User.findById(recipientId).select("name email");
+        const recipient = await User.findById(recipientId).select("name email firebaseDeviceTokens");
         await sendEmailForNotification(recipient, "Complaint Closed", complaint);
+        await sendPushToRecipient(
+          recipient,
+          "Complaint Closed",
+          `Complaint "${complaint.title}" has been closed.`,
+          complaintId,
+          "Complaint Closed"
+        );
       }
     }
 

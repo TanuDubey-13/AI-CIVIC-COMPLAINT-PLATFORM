@@ -19,6 +19,10 @@ const complaintSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    imagePublicId: {
+      type: String,
+      default: "",
+    },
     location: {
       address: {
         type: String,
