@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const { generateToken } = require("../config/jwtUtility");
+const { generateResetToken } = require("../utils/generateResetToken");
 const User = require("../models/User");
 
 // Placeholder email sender for enterprise integration.
@@ -216,10 +217,10 @@ const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase().trim() });
 
     if (user) {
-      const resetToken = crypto.randomBytes(32).toString("hex");
+      const { resetToken, hashedToken } = generateResetToken();
       const resetExpire = Date.now() + 15 * 60 * 1000;
 
-      user.passwordResetToken = resetToken;
+      user.passwordResetToken = hashedToken;
       user.passwordResetExpire = resetExpire;
       await user.save({ validateBeforeSave: false });
 
@@ -228,7 +229,7 @@ const forgotPassword = async (req, res) => {
       await sendEmail({
         to: user.email,
         subject: "Password reset request",
-        html: `<p>Hi ${user.name},</p><p>Click <a href="${resetUrl}">here</a> to reset your password.</p>`,
+        html: `<p>Hi ${user.name},</p><p>Click <a href="${resetUrl}">here</a> to reset your password.</p><p>This link expires in 15 minutes.</p>`,
       });
     }
 
@@ -265,8 +266,11 @@ const resetPassword = async (req, res) => {
       });
     }
 
+    // Hash the incoming token to compare with stored hash
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
     const user = await User.findOne({
-      passwordResetToken: token,
+      passwordResetToken: hashedToken,
       passwordResetExpire: { $gt: Date.now() },
     });
 

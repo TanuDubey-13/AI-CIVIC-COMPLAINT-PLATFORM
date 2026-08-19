@@ -118,15 +118,27 @@ const createComplaint = async (req, res) => {
     const normalizedPriority = VALID_PRIORITIES.includes(priority) ? priority : "Medium";
 
     let imageUrl = "";
+    let imagePublicId = "";
+
     if (req.file && req.file.buffer) {
-      const uploadResult = await uploadBufferToCloudinary(req.file.buffer);
-      imageUrl = uploadResult.secure_url;
+      try {
+        const uploadResult = await uploadBufferToCloudinary(req.file.buffer);
+        imageUrl = uploadResult.secure_url;
+        imagePublicId = uploadResult.public_id;
+      } catch (uploadError) {
+        console.error("Cloudinary upload error:", uploadError);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to upload complaint image. Please try again later.",
+        });
+      }
     }
 
     const complaint = await Complaint.create({
       title: normalizedTitle,
       description: normalizedDescription,
       image: imageUrl,
+      imagePublicId,
       location: {
         address: typeof location.address === "string" ? location.address.trim() : "",
         latitude: location.latitude !== undefined ? Number(location.latitude) : null,
@@ -415,6 +427,14 @@ const deleteComplaint = async (req, res) => {
     }
 
     await Complaint.findByIdAndDelete(req.params.id);
+
+    if (complaint.imagePublicId) {
+      cloudinary.uploader
+        .destroy(complaint.imagePublicId, { resource_type: "image" })
+        .catch((destroyError) => {
+          console.error("Cloudinary cleanup failed for deleted complaint image:", destroyError);
+        });
+    }
 
     return res.status(200).json({
       success: true,
