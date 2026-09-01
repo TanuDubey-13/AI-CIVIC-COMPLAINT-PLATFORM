@@ -1,5 +1,6 @@
-const API_BASE_URL = '/api/ai';
+import api from './api';
 
-export const analyzeComplaint = async (payload) => {
-  return { success: true, message: 'AI analysis endpoint ready', payload };
+export const analyzeComplaint = async (data) => {
+  const response = await api.post('/ai/analyze', data);
+  return response.data;
 };

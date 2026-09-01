@@ -16,7 +16,7 @@ const getPagination = (query) => {
 };
 
 const getOfficerDashboard = async (officerId) => {
-  const match = { assignedOfficer: mongoose.Types.ObjectId(officerId) };
+  const match = { assignedOfficer: new mongoose.Types.ObjectId(officerId) };
 
   const [statusCounts, highPriority, todayCount, recentComplaints, resolvedTimes] = await Promise.all([
     Complaint.aggregate([
@@ -73,7 +73,7 @@ const getOfficerDashboard = async (officerId) => {
 
 const getOfficerComplaints = async (officerId, query) => {
   const { page, limit, skip } = getPagination(query);
-  const filter = { assignedOfficer: mongoose.Types.ObjectId(officerId) };
+  const filter = { assignedOfficer: new mongoose.Types.ObjectId(officerId) };
 
   if (query.search) {
     const s = query.search.trim();
@@ -256,7 +256,7 @@ const updateProfile = async (officerId, payload) => {
 };
 
 const getPerformance = async (officerId) => {
-  const match = { assignedOfficer: mongoose.Types.ObjectId(officerId) };
+  const match = { assignedOfficer: new mongoose.Types.ObjectId(officerId) };
 
   const [totalAssigned, totalResolved, highPriorityResolved, resolvedTimes, monthly, weekly] = await Promise.all([
     Complaint.countDocuments(match),
@@ -313,7 +313,7 @@ const getPerformance = async (officerId) => {
 
 const getNotifications = async (officerId, query) => {
   const { page, limit, skip } = getPagination(query);
-  const filter = { user: mongoose.Types.ObjectId(officerId) };
+  const filter = { user: new mongoose.Types.ObjectId(officerId) };
 
   const [notifications, total] = await Promise.all([
     Notification.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),

@@ -15,9 +15,31 @@ const aiRoutes = require("./routes/aiRoutes");
 const firebaseRoutes = require("./routes/firebaseRoutes");
 const { errorHandler, notFound } = require("./middleware/errorHandler");
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // allow requests with no origin (like mobile apps, curl, or Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === "development") {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  })
+);
 app.use(helmet());
 app.use(compression());
 app.use(express.json());
