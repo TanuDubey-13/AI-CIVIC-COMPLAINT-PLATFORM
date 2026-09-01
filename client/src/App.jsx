@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -111,3 +112,20 @@ function App() {
 }
 
 export default App;
+=======
+import AppRoutes from "./routes/AppRoutes";
+
+
+function App(){
+
+return(
+
+<AppRoutes/>
+
+)
+
+}
+
+
+export default App;
+>>>>>>> 0488c86f666544cf90ab8d11d465f34d47f64c49
